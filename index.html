@@ -9,45 +9,55 @@
   const PASS = 'nexus2026';
   const SESSION_KEY = 'nx_auth';
   if(sessionStorage.getItem(SESSION_KEY) === '1') return;
-  document.addEventListener('DOMContentLoaded', function(){
-    document.body.style.display = 'none';
-  });
-  const overlay = document.createElement('div');
-  overlay.id = 'nx-gate';
-  overlay.style.cssText = [
-    'position:fixed','inset:0','z-index:99999',
-    'background:#0d0d1a',
-    'display:flex','align-items:center','justify-content:center',
-    'font-family:DM Sans,system-ui,sans-serif'
-  ].join(';');
-  overlay.innerHTML = `
-    <div style="text-align:center;padding:48px 40px;background:#13132a;border:1px solid #2a2a4a;border-radius:16px;width:320px;box-shadow:0 0 60px rgba(99,102,241,.15)">
-      <div style="font-family:'Bebas Neue',DM Sans,sans-serif;font-size:28px;color:#e0e0ff;letter-spacing:.08em;margin-bottom:4px">PROJECT NEXUS</div>
-      <div style="font-size:11px;color:#6366f1;letter-spacing:.14em;text-transform:uppercase;margin-bottom:32px">Measurement Dashboard</div>
-      <input id="nx-pw" type="password" placeholder="Enter password" autocomplete="current-password"
-        style="width:100%;box-sizing:border-box;padding:11px 14px;border-radius:8px;border:1px solid #2a2a4a;background:#0d0d1a;color:#e0e0ff;font-size:14px;outline:none;margin-bottom:10px"/>
-      <div id="nx-err" style="color:#f87171;font-size:12px;min-height:18px;margin-bottom:8px"></div>
-      <button id="nx-btn"
-        style="width:100%;padding:11px;border-radius:8px;border:none;background:#6366f1;color:#fff;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:.02em">
-        Enter
-      </button>
-    </div>`;
-  function attempt(){
-    const val = document.getElementById('nx-pw').value;
-    if(val === PASS){
-      sessionStorage.setItem(SESSION_KEY, '1');
-      document.getElementById('nx-gate').remove();
-      document.body.style.display = '';
-    } else {
-      document.getElementById('nx-err').textContent = 'Incorrect password.';
-      document.getElementById('nx-pw').value = '';
-      document.getElementById('nx-pw').focus();
+
+  // Hide body immediately via a style tag so nothing flashes
+  const hide = document.createElement('style');
+  hide.id = 'nx-hide';
+  hide.textContent = 'body{visibility:hidden!important}';
+  document.head.appendChild(hide);
+
+  function showGate(){
+    document.getElementById('nx-hide').remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'nx-gate';
+    overlay.style.cssText = [
+      'position:fixed','inset:0','z-index:99999',
+      'background:#0d0d1a',
+      'display:flex','align-items:center','justify-content:center',
+      'font-family:DM Sans,system-ui,sans-serif'
+    ].join(';');
+    overlay.innerHTML = '<div style="text-align:center;padding:48px 40px;background:#13132a;border:1px solid #2a2a4a;border-radius:16px;width:320px;box-shadow:0 0 60px rgba(99,102,241,.15)">'
+      + '<div style="font-family:Bebas Neue,DM Sans,sans-serif;font-size:28px;color:#e0e0ff;letter-spacing:.08em;margin-bottom:4px">PROJECT NEXUS</div>'
+      + '<div style="font-size:11px;color:#6366f1;letter-spacing:.14em;text-transform:uppercase;margin-bottom:32px">Measurement Dashboard</div>'
+      + '<input id="nx-pw" type="password" placeholder="Enter password" autocomplete="current-password" style="width:100%;box-sizing:border-box;padding:11px 14px;border-radius:8px;border:1px solid #2a2a4a;background:#0d0d1a;color:#e0e0ff;font-size:14px;outline:none;margin-bottom:10px"/>'
+      + '<div id="nx-err" style="color:#f87171;font-size:12px;min-height:18px;margin-bottom:8px"></div>'
+      + '<button id="nx-btn" style="width:100%;padding:11px;border-radius:8px;border:none;background:#6366f1;color:#fff;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:.02em">Enter</button>'
+      + '</div>';
+
+    document.body.appendChild(overlay);
+    document.getElementById('nx-pw').focus();
+
+    function attempt(){
+      if(document.getElementById('nx-pw').value === PASS){
+        sessionStorage.setItem(SESSION_KEY, '1');
+        overlay.remove();
+        document.body.style.visibility = '';
+      } else {
+        document.getElementById('nx-err').textContent = 'Incorrect password.';
+        document.getElementById('nx-pw').value = '';
+        document.getElementById('nx-pw').focus();
+      }
     }
+    document.getElementById('nx-btn').addEventListener('click', attempt);
+    document.getElementById('nx-pw').addEventListener('keydown', function(e){ if(e.key==='Enter') attempt(); });
   }
-  document.getElementById('nx-btn').addEventListener('click', attempt);
-  document.getElementById('nx-pw').addEventListener('keydown', function(e){ if(e.key==='Enter') attempt(); });
-  document.body.appendChild(overlay);
-  document.getElementById('nx-pw').focus();
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', showGate);
+  } else {
+    showGate();
+  }
 })();
 </script>
 
