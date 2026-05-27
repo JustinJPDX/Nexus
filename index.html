@@ -2196,7 +2196,7 @@ window.addEventListener('load',()=>{
 });
 
 // Listen for show('glossary') and init search
-const origShow=window.show;
+const origShow=window.show||show;
 window.show=function(id){
   origShow.call(this,id);
   if(id==='glossary') initGlossarySearch();
