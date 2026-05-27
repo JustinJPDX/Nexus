@@ -286,7 +286,12 @@ body.edit-mode .ef:focus{background:rgba(99,102,241,.12);border-bottom:1.5px sol
 .gcall-txt{font-size:11px;color:var(--text2);line-height:1.65}
 
 /* ── NOTE BAR ─────────────────────────────────────────────────────────── */
-.note{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);padding-top:10px;border-top:1px solid var(--border);line-height:1.7;margin-top:12px}
+.note{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);border-top:1px solid var(--border);line-height:1.7;margin-top:12px;max-height:0;overflow:hidden;padding:0;opacity:0;transition:max-height .25s ease,opacity .2s ease,padding .2s ease}
+.note.open{max-height:600px;opacity:1;padding-top:10px}
+.note-toggle{display:flex;align-items:center;gap:5px;margin-top:10px;cursor:pointer;font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:.06em;border:none;background:none;padding:2px 0;transition:color .15s}
+.note-toggle:hover{color:var(--px2)}
+.note-toggle .nt-arrow{display:inline-block;transition:transform .2s;font-size:8px}
+.note-toggle.open .nt-arrow{transform:rotate(90deg)}
 
 /* ── ALERT BOX ─────────────────────────────────────────────────────────── */
 .al{background:var(--alert-bg);border:1px solid var(--alert-b);border-radius:9px;padding:10px 14px;display:flex;align-items:flex-start;gap:8px;margin-bottom:12px}
@@ -448,6 +453,9 @@ body.edit-mode .ef:focus{background:rgba(99,102,241,.12);border-bottom:1.5px sol
   /* Notes */
   .note{font-size:11px;padding:10px}
 
+  /* Notes: hide completely on mobile */
+  .note,.note-toggle{display:none!important}
+
   /* Burndown and target charts */
   .sl span{font-size:9px!important}
 
@@ -481,7 +489,8 @@ body.edit-mode .ef:focus{background:rgba(99,102,241,.12);border-bottom:1.5px sol
   .sec{display:none!important}
   .sec.on{display:block!important;break-inside:avoid}
   .card,.kc{border:1px solid #ddd;box-shadow:none;break-inside:avoid;page-break-inside:avoid}
-  .note{border-color:#ddd;color:#333}
+  .note{border-color:#ddd;color:#333;max-height:none!important;opacity:1!important;padding-top:10px!important;overflow:visible!important}
+  .note-toggle{display:none!important}
   :root{--bg:#fff;--bg2:#fff;--bg3:#f5f5f5;--card:#fff;--border:#ddd;--border2:#ccc;--text:#000;--text2:#333;--text3:#666;--px:#4f46e5;--px2:#6366f1;--teal:#059669;--gold:#d97706;--red:#dc2626}
   canvas{max-width:100%!important}
   .gcall{border-color:#ddd}
@@ -2331,12 +2340,29 @@ window.addEventListener('load',()=>{
   buildTable();
   drawTrend();
   drawPickup();
+  initNoteToggles();
   initFooter();
   initMobileNav();
   initTooltips();
 });
 
 
+
+/* ══════════════════════════════════════════════════════════════════════════
+   COLLAPSIBLE NOTES
+   ══════════════════════════════════════════════════════════════════════════ */
+function initNoteToggles(){
+  document.querySelectorAll('.note').forEach(note => {
+    const btn = document.createElement('button');
+    btn.className = 'note-toggle';
+    btn.innerHTML = '<span class="nt-arrow">&#9654;</span> Insight';
+    btn.addEventListener('click', () => {
+      note.classList.toggle('open');
+      btn.classList.toggle('open');
+    });
+    note.parentNode.insertBefore(btn, note);
+  });
+}
 
 /* ══════════════════════════════════════════════════════════════════════════
    DATA FOOTER
